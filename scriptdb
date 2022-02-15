@@ -1,0 +1,119 @@
+-- Database: catastrodb
+
+-- DROP DATABASE IF EXISTS catastrodb;
+
+CREATE DATABASE catastrodb
+    WITH 
+    OWNER = postgres
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'Spanish_Spain.1252'
+    LC_CTYPE = 'Spanish_Spain.1252'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1;
+	
+-- SCHEMA: app
+
+-- DROP SCHEMA IF EXISTS app ;
+
+CREATE SCHEMA IF NOT EXISTS app
+    AUTHORIZATION postgres;
+	
+-- Table: app.buildings
+
+-- DROP TABLE IF EXISTS app.buildings;
+
+CREATE TABLE IF NOT EXISTS app.buildings
+(
+    id integer NOT NULL DEFAULT nextval('app.buildings_id_seq'::regclass),
+    number_floors text COLLATE pg_catalog."default",
+    total_area text COLLATE pg_catalog."default",
+    adress text COLLATE pg_catalog."default",
+    type_building text COLLATE pg_catalog."default",
+    CONSTRAINT buildings_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS app.buildings
+    OWNER to postgres;
+	
+-- Table: app.lands
+
+-- DROP TABLE IF EXISTS app.lands;
+
+CREATE TABLE IF NOT EXISTS app.lands
+(
+    id integer NOT NULL DEFAULT nextval('app.lands_id_seq'::regclass),
+    area text COLLATE pg_catalog."default",
+    commercial_value integer,
+    water_source boolean,
+    buildings boolean,
+    type_land text COLLATE pg_catalog."default",
+    CONSTRAINT lands_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS app.lands
+    OWNER to postgres;
+	
+-- Table: app.owners
+
+-- DROP TABLE IF EXISTS app.owners;
+
+CREATE TABLE IF NOT EXISTS app.owners
+(
+    id integer NOT NULL DEFAULT nextval('app.owners_id_seq'::regclass),
+    document_type text COLLATE pg_catalog."default",
+    document_number text COLLATE pg_catalog."default",
+    full_name text COLLATE pg_catalog."default",
+    last_name text COLLATE pg_catalog."default",
+    nit text COLLATE pg_catalog."default",
+    company_name text COLLATE pg_catalog."default",
+    adress text COLLATE pg_catalog."default",
+    phone text COLLATE pg_catalog."default",
+    email text COLLATE pg_catalog."default",
+    type_person text COLLATE pg_catalog."default",
+    CONSTRAINT owners_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS app.owners
+    OWNER to postgres;
+	
+-- Table: app.properties
+
+-- DROP TABLE IF EXISTS app.properties;
+
+CREATE TABLE IF NOT EXISTS app.properties
+(
+    id integer NOT NULL DEFAULT nextval('app.properties_id_seq'::regclass),
+    property_number text COLLATE pg_catalog."default",
+    valuation integer,
+    name text COLLATE pg_catalog."default",
+    department text COLLATE pg_catalog."default",
+    municipality text COLLATE pg_catalog."default",
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    owner_id integer,
+    building_id integer,
+    land_id integer,
+    CONSTRAINT properties_pkey PRIMARY KEY (id),
+    CONSTRAINT properties_building_id_fkey FOREIGN KEY (building_id)
+        REFERENCES app.buildings (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT properties_land_id_fkey FOREIGN KEY (land_id)
+        REFERENCES app.lands (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT properties_owner_id_fkey FOREIGN KEY (owner_id)
+        REFERENCES app.owners (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS app.properties
+    OWNER to postgres;
